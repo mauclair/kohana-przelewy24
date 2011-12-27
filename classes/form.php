@@ -12,9 +12,10 @@ class Form extends Kohana_Form {
 		return Form::close();
 	}
 	
-	public static function przelewy24($id, $price, $email)
+	public static function przelewy24($id, $price, $email, $description = NULL)
 	{
 		$price = $price * 100;
+		$id = Przelewy24::get_id($id, $price, $email);
 		$crc = array($id, Kohana::$config->load('przelewy24.id'), $price, Kohana::$config->load('przelewy24.key_crc'));
 		$crc = md5(implode('|', $crc));
 		
@@ -26,7 +27,14 @@ class Form extends Kohana_Form {
 		$result .= Form::hidden('p24_return_url_ok', Route::url('p24_return_ok', NULL, 'http'));
 		$result .= Form::hidden('p24_return_url_error', Route::url('p24_return_error', NULL, 'http'));
 		$result .= Form::hidden('p24_crc', $crc);
+		if ($description !== NULL)
+			$result .= Form::hidden('p24_opis', $description);
 		return $result;
+	}
+	
+	public static function przelewy24_test($ok, $id, $price, $email, $description = NULL)
+	{
+		return Form::przelewy24($id, $price, $email, $ok?"TEST_OK":"TEST_ERR");
 	}
 	
 }
